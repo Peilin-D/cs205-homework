@@ -47,6 +47,7 @@ if __name__ == '__main__':
     grid[(positions[:, 0] / grid_spacing).astype(int),
          (positions[:, 1] / grid_spacing).astype(int)] = np.arange(num_balls)
 
+
     # A matplotlib-based animator object
     animator = Animator(positions, radius * 2)
 
@@ -64,12 +65,13 @@ if __name__ == '__main__':
     while True:
         with Timer() as t:
             update(positions, velocities, grid,
-                   radius, grid_size, locks_ptr,
+                   radius, grid_spacing, locks_ptr,
                    physics_step)
 
         # udpate our estimate of how fast the simulator runs
         physics_step = 0.9 * physics_step + 0.1 * t.interval
         total_time += t.interval
+
 
         frame_count += 1
         if total_time > anim_step:
@@ -80,3 +82,31 @@ if __name__ == '__main__':
             # SUBPROBLEM 3: sort objects by location.  Be sure to update the
             # grid if objects' indices change!  Also be sure to sort the
             # velocities with their object positions!
+            
+            # sort on the grid, by row
+            mask_array=np.ones(num_balls)
+            order=0
+            for i in range(grid_size):
+                for j in range(grid_size):
+                    if grid[i,j]!=4294967295: # this is -1 of unsigned int
+                        mask_array[order]=grid[i,j]
+                        grid[i,j]=order
+                        order+=1
+
+            # sort positions and velocities using mask_array
+            positions_tmp=np.copy(positions)
+            velocities_tmp=np.copy(velocities)
+            for i in range(num_balls):
+                positions[i]=positions_tmp[mask_array[i]]
+                velocities[i]=velocities_tmp[mask_array[i]]
+
+
+
+
+
+
+
+
+
+
+
